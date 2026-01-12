@@ -6,18 +6,25 @@ import { showAlert, debounce } from './util.js';
 import { init, getFilterPictures } from './filter.js';
 import './my-photo.js';
 
-try {
-  init(await getData(), debounce(renderGallery));
-  renderGallery(getFilterPictures());
-} catch (err) {
-  showAlert(err.message);
-}
-setOnFormSubmit(async (data) => {
+// Основная асинхронная функция
+async function main() {
   try {
-    await sendData(data);
-    hideModal();
-    showSuccessMessage();
-  } catch {
-    showErrorMessage();
+    init(await getData(), debounce(renderGallery));
+    renderGallery(getFilterPictures());
+  } catch (err) {
+    showAlert(err.message);
   }
-});
+
+  setOnFormSubmit(async (data) => {
+    try {
+      await sendData(data);
+      hideModal();
+      showSuccessMessage();
+    } catch (err) {
+      showErrorMessage();
+    }
+  });
+}
+
+// Запуск
+main();
