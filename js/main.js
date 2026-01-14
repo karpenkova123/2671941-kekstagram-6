@@ -1,30 +1,19 @@
-import { renderGallery } from './full-photo.js';
-import { showSuccessMessage, showErrorMessage } from './data.js';
-import { hideModal, setOnFormSubmit } from './form.js';
-import { getData, sendData } from './fetch.js';
-import { showAlert, debounce } from './util.js';
-import { init, getFilterPictures } from './filter.js';
-import './my-photo.js';
+import { renderThumbnails } from './thumbnails.js';
+import { loadPictures } from './api.js';
+import { showLoadError } from './messages.js';
+import { initFilters } from './filters.js';
+import './form.js';
 
-// Основная асинхронная функция
-async function main() {
-  try {
-    init(await getData(), debounce(renderGallery));
-    renderGallery(getFilterPictures());
-  } catch (err) {
-    showAlert(err.message);
-  }
+const initApp = () => {
+  loadPictures()
+    .then((pictures) => {
+      renderThumbnails(pictures);
+      initFilters(pictures);
+    })
+    .catch((error) => {
+      showLoadError(error.message);
+    });
+};
 
-  setOnFormSubmit(async (data) => {
-    try {
-      await sendData(data);
-      hideModal();
-      showSuccessMessage();
-    } catch (err) {
-      showErrorMessage();
-    }
-  });
-}
+document.addEventListener('DOMContentLoaded', initApp);
 
-// Запуск
-main();
